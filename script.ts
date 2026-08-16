@@ -1,10 +1,13 @@
 // notice: some link is like this: https://163cn.tv/bddFIFFr
 // then you need to exec getRealLink(http_link)
 async function getRealLink(http_link: string) {
-    const response = await fetch(http_link);
-    const realLink = response.headers.get("location");
-    if (realLink)
-        return realLink;
+    if(!http_link.includes("163cn.tv")){return http_link;}
+    const response = await fetch(
+      "https://fuck-cors.xslimenb.eu.org/?url="+http_link
+    );
+    const json = await response.json();
+    if (response.status == 200 && json.original !== "null")
+        return json.original;
     else
         return http_link;
 }
@@ -109,8 +112,9 @@ type shareObj = {
     id2: number | null,
 }
 
-function getShareObj(http_link: URL): shareObj {
-    let ref = getRelativeRef(http_link);
+async function getShareObj(http_link: string): Promise<shareObj> {
+    http_link = await getRealLink(http_link);
+    let ref = getRelativeRef(new URL(http_link));
     let { path, path_id } = getPathFromRef(ref);
     let params = getSearchParamsFromRef(ref, path_id);
     let share_obj: shareObj = {
@@ -287,10 +291,14 @@ function decompressShareObj(str: string): shareObj{
 // 应用宝调用：
 // http://a.app.qq.com/o/simple.jsp?pkgname=com.netease.cloudmusic&android_scheme=orpheus://eyJjbWQiOiJsaXN0ZW50b2dldGhlciIsInJlZmVyIjoiaW5ib3hfaW52aXRlIiwicm9vbUlkIjoiZmJhODBmMzhiOWE2N2MxMzM5NzY1NmM1NWM5MzAwNTZfMTc4Njg4MDUwNDQyOSIsImludml0ZXJJZCI6IjE3NzM1ODAzMTEifQ==
 
-export { 
+export {
+    getRealLink,
     getShareObj,
     shareObjToOrignal,
     shareObjToOrpheus,
     compressShareObj,
     decompressShareObj,
 };
+
+
+console.log(getShareObj("https://163cn.tv/bdfRehdK"))

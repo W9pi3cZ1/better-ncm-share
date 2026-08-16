@@ -23,6 +23,7 @@
     <button id="copy-it">Copy It!</button>
     <script type="module">
         import {
+            getRealLink,
             getShareObj,
             shareObjToOrignal,
             shareObjToOrpheus,
@@ -37,8 +38,8 @@
         let spawn_yyb_orp = document.querySelector("#spawn-yyb-orp");
         let copy_it =document.querySelector("#copy-it");
         let share_obj;
-        btn.addEventListener("click", () => {
-            share_obj = getShareObj(new URL(link_elem.value))
+        btn.addEventListener("click", async () => {
+            share_obj = await getShareObj(link_elem.value)
             console.log(share_obj);
             let sl_pf = 
                 location.protocol+"//"
