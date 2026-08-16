@@ -70,7 +70,8 @@ function getSearchParamsFromRef(ref: string, path_id: string | null): URLSearchP
     return params;
 }
 
-const encodeCharset = "!&()*+,-./0123456789:=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~".split("") // `#` be used to separate
+// `~` be used to separate, because of QQ's stupid Hash parsing 凸(〝▼皿▼) 
+const encodeCharset = "!&()*+,-./0123456789:=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".split("")
 
 // 0 [song-share]
 // in: https://y.music.163.com/m/song?id=3332757361&uct2=oLMlPGOQMOEMkIuch3Ox3Q%3D%3D&fx-wechatnew=t1&fx-wxqd=c&fx-wordtest=&fx-listentest=t3&H5_DownloadVIPGift=&playerUIModeId=5623502&PlayerStyles_SynchronousSharing=t3&dlt=0846&app_version=9.5.70&sc=wm&tn=
@@ -254,11 +255,11 @@ function compressShareObj(share_obj: shareObj){
     buf+=encodeCharset[share_obj.kind%encodeCharset.length];
     buf+=encodeNum(share_obj.id);
     if(share_obj.room_id_hash !== null){
-        buf+="#";
+        buf+="~";
         buf+=encodeBigInt(BigInt("0x"+share_obj.room_id_hash));
     }
     if(share_obj.id2 !== null){
-        buf+="#";
+        buf+="~";
         buf+=encodeNum(share_obj.id2);
     }
     buf+="$";
@@ -267,7 +268,7 @@ function compressShareObj(share_obj: shareObj){
 
 function decompressShareObj(str: string): shareObj{
     if(str.endsWith("$")){str=str.slice(0,-1);}
-    let args = str.slice(1).split("#");
+    let args = str.slice(1).split("~");
     let obj: shareObj = {
         kind: encodeCharset.indexOf(str[0]),
         id: decodeNum(args[0]),
