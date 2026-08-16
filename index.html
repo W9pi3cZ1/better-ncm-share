@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Better NCM Share</title>
+    <style>
+        textarea {
+            width: 250px;
+            height: 250px;
+        }
+    </style>
+</head>
+
+<body>
+    <textarea name="link" id="link"></textarea>
+    <input type="button" value="ok!" id="btn">
+    <textarea name="link" id="share-link"></textarea>
+    <a id="spawn-org" target="_blank"></a>
+    <a id="spawn-orp" target="_blank"></a>
+    <a id="spawn-yyb-orp" target="_blank"></a>
+    <script type="module" src="/script.js"></script>
+    <script type="module">
+        import {
+            getShareObj,
+            shareObjToOrignal,
+            shareObjToOrpheus,
+            compressShareObj,
+            decompressShareObj,
+        } from "/script.js";
+        let btn = document.querySelector("#btn");
+        let link_elem = document.querySelector("#link");
+        let share_link_elem = document.querySelector("#share-link");
+        let spawn_org = document.querySelector("#spawn-org");
+        let spawn_orp = document.querySelector("#spawn-orp");
+        let spawn_yyb_orp = document.querySelector("#spawn-yyb-orp");
+        let share_obj;
+        btn.addEventListener("click", () => {
+            share_obj = getShareObj(new URL(link_elem.value))
+            console.log(share_obj);
+            share_link_elem.value = `#${compressShareObj(share_obj)}`;
+            spawn_org.href = share_link_elem.value;
+            spawn_orp.href = "?wx=1"+share_link_elem.value;
+            spawn_yyb_orp.href = "?qq=1"+share_link_elem.value;
+            spawn_org.innerHTML = "Try Org!";
+            spawn_orp.innerHTML = "Try Orp!";
+            spawn_yyb_orp.innerHTML = "Try YYB Orp!";
+        })
+        if (location.hash != '') {
+            share_obj = decompressShareObj(location.hash.slice(1));
+            var orp = shareObjToOrpheus(share_obj);
+            let ua = navigator.userAgent;
+            if (ua.match(/MicroMessenger\/[0-9]/i) || location.search.includes("wx=1")) {
+            location.href = orp;
+            } else if (ua.match(/QQ\/[0-9]/i) || location.search.includes("qq=1")) {
+            location.href = `http://a.app.qq.com/o/simple.jsp?pkgname=com.netease.cloudmusic&android_scheme=${encodeURIComponent(orp)}`;
+            }else{
+            location.href = shareObjToOrignal(share_obj);}
+        }
+    </script>
+</body>
+
+</html>
