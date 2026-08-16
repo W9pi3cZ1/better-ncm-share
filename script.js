@@ -62,7 +62,7 @@ function getSearchParamsFromRef(ref, path_id) {
     }
     return params;
 }
-const encodeCharset = "!%&()*+,-./0123456789:=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~".split(""); // `#` be used to separate
+const encodeCharset = "!&()*+,-./0123456789:=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~".split(""); // `#` be used to separate
 function getShareObj(http_link) {
     let ref = getRelativeRef(http_link);
     let { path, path_id } = getPathFromRef(ref);

@@ -20,7 +20,7 @@
     <a id="spawn-org" target="_blank"></a>
     <a id="spawn-orp" target="_blank"></a>
     <a id="spawn-yyb-orp" target="_blank"></a>
-    <script type="module" src="./script.js"></script>
+    <button id="copy-it">Copy It!</button>
     <script type="module">
         import {
             getShareObj,
@@ -35,23 +35,32 @@
         let spawn_org = document.querySelector("#spawn-org");
         let spawn_orp = document.querySelector("#spawn-orp");
         let spawn_yyb_orp = document.querySelector("#spawn-yyb-orp");
+        let copy_it =document.querySelector("#copy-it");
         let share_obj;
         btn.addEventListener("click", () => {
             share_obj = getShareObj(new URL(link_elem.value))
             console.log(share_obj);
-            share_link_elem.value = `#${compressShareObj(share_obj)}`;
-            spawn_org.href = share_link_elem.value;
-            spawn_orp.href = "?wx=1"+share_link_elem.value;
-            spawn_yyb_orp.href = "?qq=1"+share_link_elem.value;
+            let sl_pf = 
+                location.protocol+"//"
+                +location.host
+                +location.pathname;
+            let sl_ha = "#"+compressShareObj(share_obj);
+            share_link_elem.value = sl_pf+sl_ha;
+            spawn_org.href = sl_pf+sl_ha;
+            spawn_orp.href = sl_pf+"?orp=1"+sl_ha;
+            spawn_yyb_orp.href = sl_pf+"?qq=1"+sl_ha;
             spawn_org.innerHTML = "Try Org!";
             spawn_orp.innerHTML = "Try Orp!";
             spawn_yyb_orp.innerHTML = "Try YYB Orp!";
         })
+        copy_it.addEventListener("click", async () => {
+            await navigator.clipboard.writeText(share_link_elem.value);
+        });
         if (location.hash != '') {
             share_obj = decompressShareObj(location.hash.slice(1));
             var orp = shareObjToOrpheus(share_obj);
             let ua = navigator.userAgent;
-            if (ua.match(/MicroMessenger\/[0-9]/i) || location.search.includes("wx=1")) {
+            if (location.search.includes("orp=1")) {
             location.href = orp;
             } else if (ua.match(/QQ\/[0-9]/i) || location.search.includes("qq=1")) {
             location.href = `http://a.app.qq.com/o/simple.jsp?pkgname=com.netease.cloudmusic&android_scheme=${encodeURIComponent(orp)}`;

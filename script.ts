@@ -70,7 +70,7 @@ function getSearchParamsFromRef(ref: string, path_id: string | null): URLSearchP
     return params;
 }
 
-const encodeCharset = "!%&()*+,-./0123456789:=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~".split("") // `#` be used to separate
+const encodeCharset = "!&()*+,-./0123456789:=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~".split("") // `#` be used to separate
 
 // 0 [song-share]
 // in: https://y.music.163.com/m/song?id=3332757361&uct2=oLMlPGOQMOEMkIuch3Ox3Q%3D%3D&fx-wechatnew=t1&fx-wxqd=c&fx-wordtest=&fx-listentest=t3&H5_DownloadVIPGift=&playerUIModeId=5623502&PlayerStyles_SynchronousSharing=t3&dlt=0846&app_version=9.5.70&sc=wm&tn=
@@ -290,25 +290,4 @@ export {
     shareObjToOrpheus,
     compressShareObj,
     decompressShareObj,
- };
-
-let test_url = ["https://y.music.163.com/m/song?id=3332757361&uct2=oLMlPGOQMOEMkIuch3Ox3Q%3D%3D&fx-wechatnew=t1&fx-wxqd=c&fx-wordtest=&fx-listentest=t3&H5_DownloadVIPGift=&playerUIModeId=5623502&PlayerStyles_SynchronousSharing=t3&dlt=0846&app_version=9.5.70&sc=wm&tn=",
-    "https://music.163.com/#/album/356178488/?userid=12625392267",
-    "https://music.163.com/#/artist?id=47557113&userid=12625392267",
-    "https://y.music.163.com/m/user?id=12625392267",
-    "https://st.music.163.com/listen-together/multishare/index.html?inviterUid=1773580311&roomId=fba80f38b9a67c13397656c55c930056_1786880504429&app_version=9.5.70&dlt=0846&qq_aio_chat_type=3",
-    "https://st.music.163.com/listen-together/share/index.html?roomId=06db4c63b6e8b9e5e8ad7cfd004fde3a_1786882336&inviterId=12625392267&songId=1491217968"]
-
-test_url.forEach((val) => {
-    let obj = getShareObj(new URL(val));
-    let orp_url = shareObjToOrpheus(obj);
-    let org_url = shareObjToOrignal(obj);
-    let share = compressShareObj(obj);
-    let decompress = decompressShareObj(share);
-    console.log(obj);
-    console.log(orp_url);
-    console.log(org_url);
-    console.log(share);
-    console.log(decompress);
-    console.log("isEq?",JSON.stringify(obj)==JSON.stringify(decompress));
-});
+};
