@@ -261,10 +261,12 @@ function compressShareObj(share_obj: shareObj){
         buf+="#";
         buf+=encodeNum(share_obj.id2);
     }
+    buf+="$";
     return buf;
 }
 
 function decompressShareObj(str: string): shareObj{
+    if(str.endsWith("$")){str=str.slice(0,-1);}
     let args = str.slice(1).split("#");
     let obj: shareObj = {
         kind: encodeCharset.indexOf(str[0]),
