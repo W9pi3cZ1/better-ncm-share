@@ -74,7 +74,8 @@ function getSearchParamsFromRef(ref: string, path_id: string | null): URLSearchP
 }
 
 // `~` be used to separate, because of QQ's stupid Hash parsing 凸(〝▼皿▼) 
-const encodeCharset = "!&()*+,-./0123456789:=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".split("")
+// replace `@` to `;`, avoid fucking mail checker
+const encodeCharset = "!&()*+,-./0123456789:=?;ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".split("")
 
 // 0 [song-share]
 // in: https://y.music.163.com/m/song?id=3332757361&uct2=oLMlPGOQMOEMkIuch3Ox3Q%3D%3D&fx-wechatnew=t1&fx-wxqd=c&fx-wordtest=&fx-listentest=t3&H5_DownloadVIPGift=&playerUIModeId=5623502&PlayerStyles_SynchronousSharing=t3&dlt=0846&app_version=9.5.70&sc=wm&tn=
@@ -101,7 +102,10 @@ const encodeCharset = "!&()*+,-./0123456789:=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdef
 // in: https://st.music.163.com/listen-together/share/index.html?roomId=06db4c63b6e8b9e5e8ad7cfd004fde3a_1786882336&inviterId=12625392267&songId=1491217968
 // out: orpheus://nm/play/listenTogether?roomId=06db4c63b6e8b9e5e8ad7cfd004fde3a_1786882336&inviterId=12625392267&listenTogetherRefer=third_party_invite&autoRecreatable=1&inviterAvatarUrl=http%3A%2F%2Fp1.music.126.net%2F6f7bLn3YSshB9FSwfMTunQ%3D%3D%2F109951173167932093.jpg&isFromH5=1
 //
-// 6 [custom]
+// 6 [playlist]
+// in: https://music.163.com/m/playlist?id=12779847433&creatorId=12625392267
+// out: orpheus://playlist/12779847433
+// 7 [custom] TODO
 // in: ANY
 // out: orpheus://openurl?url=encodeURIComponent(ANY)
 
@@ -175,6 +179,12 @@ async function getShareObj(http_link: string): Promise<shareObj> {
             }
         }
             break;
+        case "/playlist": {
+            if (id_str !== null) {
+                share_obj.kind = 6;
+                share_obj.id = parseInt(id_str);
+            }
+        }
         default:
     }
     return share_obj;
@@ -188,6 +198,7 @@ function shareObjToOrpheus(share_obj: shareObj) {
         case 3: return `orpheus://user/${share_obj.id}`;
         case 4: return `orpheus://nm/multiListenTogether/joinRoom?roomId=${share_obj.room_id_hash}_${share_obj.id2}&inviterId=${share_obj.id}&listenTogetherRefer=third_party_invite`;
         case 5: return `orpheus://nm/play/listenTogether?roomId=${share_obj.room_id_hash}_${share_obj.id2}&inviterId=${share_obj.id}&listenTogetherRefer=third_party_invite&autoRecreatable=1&isFromH5=1`;
+        case 6: return `orpheus://playlist/${share_obj.id}`;
         case -1: return `bad`;
         default:
             return "null";
@@ -202,6 +213,7 @@ function shareObjToOrignal(share_obj: shareObj) {
         case 3: return `https://music.163.com/user?id=${share_obj.id}`;
         case 4: return `https://st.music.163.com/listen-together/multishare?inviterUid=${share_obj.id}&roomId=${share_obj.room_id_hash}_${share_obj.id2}`;
         case 5: return `https://st.music.163.com/listen-together/share?roomId=${share_obj.room_id_hash}_${share_obj.id2}&inviterId=${share_obj.id}`;
+        case 6: return `https://music.163.com/playlist?id=${share_obj.id}`;
         case -1: return `bad`;
         default:
             return "null";
@@ -272,6 +284,7 @@ function compressShareObj(share_obj: shareObj){
 
 function decompressShareObj(str: string): shareObj{
     if(str.endsWith("$")){str=str.slice(0,-1);}
+    str = str.replaceAll("@", ";"); // 兼容
     let args = str.slice(1).split("~");
     let obj: shareObj = {
         kind: encodeCharset.indexOf(str[0]),

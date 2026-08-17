@@ -66,7 +66,8 @@ function getSearchParamsFromRef(ref, path_id) {
     return params;
 }
 // `~` be used to separate, because of QQ's stupid Hash parsing 凸(〝▼皿▼) 
-const encodeCharset = "!&()*+,-./0123456789:=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".split("");
+// replace `@` to `;`, avoid fucking mail checker
+const encodeCharset = "!&()*+,-./0123456789:=?;ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".split("");
 async function getShareObj(http_link) {
     http_link = await getRealLink(http_link);
     let ref = getRelativeRef(new URL(http_link));
@@ -132,6 +133,12 @@ async function getShareObj(http_link) {
                 }
             }
             break;
+        case "/playlist": {
+            if (id_str !== null) {
+                share_obj.kind = 6;
+                share_obj.id = parseInt(id_str);
+            }
+        }
         default:
     }
     return share_obj;
@@ -144,6 +151,7 @@ function shareObjToOrpheus(share_obj) {
         case 3: return `orpheus://user/${share_obj.id}`;
         case 4: return `orpheus://nm/multiListenTogether/joinRoom?roomId=${share_obj.room_id_hash}_${share_obj.id2}&inviterId=${share_obj.id}&listenTogetherRefer=third_party_invite`;
         case 5: return `orpheus://nm/play/listenTogether?roomId=${share_obj.room_id_hash}_${share_obj.id2}&inviterId=${share_obj.id}&listenTogetherRefer=third_party_invite&autoRecreatable=1&isFromH5=1`;
+        case 6: return `orpheus://playlist/${share_obj.id}`;
         case -1: return `bad`;
         default:
             return "null";
@@ -157,6 +165,7 @@ function shareObjToOrignal(share_obj) {
         case 3: return `https://music.163.com/user?id=${share_obj.id}`;
         case 4: return `https://st.music.163.com/listen-together/multishare?inviterUid=${share_obj.id}&roomId=${share_obj.room_id_hash}_${share_obj.id2}`;
         case 5: return `https://st.music.163.com/listen-together/share?roomId=${share_obj.room_id_hash}_${share_obj.id2}&inviterId=${share_obj.id}`;
+        case 6: return `https://music.163.com/playlist?id=${share_obj.id}`;
         case -1: return `bad`;
         default:
             return "null";
@@ -225,6 +234,7 @@ function decompressShareObj(str) {
     if (str.endsWith("$")) {
         str = str.slice(0, -1);
     }
+    str = str.replaceAll("@", ";"); // 兼容
     let args = str.slice(1).split("~");
     let obj = {
         kind: encodeCharset.indexOf(str[0]),
