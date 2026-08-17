@@ -7,20 +7,25 @@
     <title>Better NCM Share</title>
     <style>
         textarea {
-            width: 250px;
             height: 250px;
+        }
+        #content {
+            display: flex;
+            flex-direction: column;
+        }
+        #share-link {
+            font-size: 2rem;
         }
     </style>
 </head>
 
 <body>
-    <textarea name="link" id="link"></textarea>
+    <div id="content">
+        <textarea name="link" id="link"></textarea>
     <input type="button" value="ok!" id="btn">
-    <textarea name="link" id="share-link"></textarea>
-    <a id="spawn-org" target="_blank"></a>
-    <a id="spawn-orp" target="_blank"></a>
-    <a id="spawn-yyb-orp" target="_blank"></a>
-    <button id="copy-it">Copy It!</button>
+    <div>Link: <a id="share-link"></a></div>
+    <button id="copy-it">复制</button>
+    </div>
     <script type="module">
         import {
             getRealLink,
@@ -33,10 +38,8 @@
         let btn = document.querySelector("#btn");
         let link_elem = document.querySelector("#link");
         let share_link_elem = document.querySelector("#share-link");
-        let spawn_org = document.querySelector("#spawn-org");
-        let spawn_orp = document.querySelector("#spawn-orp");
-        let spawn_yyb_orp = document.querySelector("#spawn-yyb-orp");
         let copy_it =document.querySelector("#copy-it");
+        let content =document.querySelector("#content");
         let share_obj;
         btn.addEventListener("click", async () => {
             share_obj = await getShareObj(link_elem.value)
@@ -46,27 +49,35 @@
                 +location.host
                 +location.pathname;
             let sl_ha = "#"+compressShareObj(share_obj);
-            share_link_elem.value = sl_pf+sl_ha;
-            spawn_org.href = sl_pf+sl_ha;
-            spawn_orp.href = sl_pf+"?orp=1"+sl_ha;
-            spawn_yyb_orp.href = sl_pf+"?qq=1"+sl_ha;
-            spawn_org.innerHTML = "Try Org!";
-            spawn_orp.innerHTML = "Try Orp!";
-            spawn_yyb_orp.innerHTML = "Try YYB Orp!";
+            share_link_elem.href = sl_pf+sl_ha;
+            share_link_elem.innerHTML = sl_pf+sl_ha;
         })
         copy_it.addEventListener("click", async () => {
-            await navigator.clipboard.writeText(share_link_elem.value);
+            await navigator.clipboard.writeText(share_link_elem.href);
         });
-        if (location.hash != '') {
+
+        if (location.hash !== '' && location.hash !== '#') {
             share_obj = decompressShareObj(location.hash.slice(1));
-            var orp = shareObjToOrpheus(share_obj);
+            console.log(share_obj);
+            let orp = shareObjToOrpheus(share_obj);
+            let yyb = `http://a.app.qq.com/o/simple.jsp?pkgname=com.netease.cloudmusic&android_scheme=${encodeURIComponent(orp)}`;
+            let org = shareObjToOrignal(share_obj);
             let ua = navigator.userAgent;
+            let auto;
             if (location.search.includes("orp=1")) {
-            location.href = orp;
+            auto = orp;
             } else if (ua.match(/QQ\/[0-9]/i) || location.search.includes("qq=1")) {
-            location.href = `http://a.app.qq.com/o/simple.jsp?pkgname=com.netease.cloudmusic&android_scheme=${encodeURIComponent(orp)}`;
+            auto = yyb;
             }else{
-            location.href = shareObjToOrignal(share_obj);}
+            auto = org
+            }
+            content.innerHTML = `
+            <a href="${auto}" id="share-link" >自动路线</a>
+            <a href="${org}"  id="share-link" >路线1</a>
+            <a href="${orp}"  id="share-link" >路线2</a>
+            <a href="${yyb}"  id="share-link" >路线3</a>
+            <a href="javascript:void(0)" onclick="location.replace('#');location.reload();" id="share-link">返回</a>
+            `;
         }
     </script>
 </body>
