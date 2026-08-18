@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Better NCM Share Direct</title>
+</head>
+
+<body>
+  <script type="module">
+    import {
+      getRealLink,
+      getShareObj,
+      shareObjToOrignal,
+      shareObjToOrpheus,
+      compressShareObj,
+      decompressShareObj,
+    } from "./script.js";
+    import {
+      getUserCard
+    } from "./user-card.js";
+    let share_obj;
+    if (location.hash !== '' && location.hash !== '#') {
+      share_obj = decompressShareObj(location.hash.slice(1));
+      console.log(share_obj);
+      let org = shareObjToOrignal(share_obj);
+      location.replace(org);
+    }
+  </script>
+</body>
+
+</html>
