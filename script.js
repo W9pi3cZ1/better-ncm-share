@@ -58,7 +58,13 @@ function getSearchParamsFromRef(ref, path_id) {
 // `~` be used to separate, because of QQ's stupid Hash parsing 凸(〝▼皿▼) 
 // replace `@` to `;`, avoid fucking mail checker
 const encodeCharset = "!&()*+,-./0123456789:=?;ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".split("");
+function extractUrls(text, unique = false) {
+    const urlRegex = new RegExp("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]", "g");
+    const matches = text.match(urlRegex) || [];
+    return unique ? [...new Set(matches)] : matches;
+}
 async function getShareObj(http_link) {
+    http_link = extractUrls(http_link)[0];
     http_link = await getRealLink(http_link);
     let ref = getRelativeRef(new URL(http_link));
     let { path, path_id } = getPathFromRef(ref);
@@ -243,4 +249,3 @@ function decompressShareObj(str) {
 // 应用宝调用：
 // http://a.app.qq.com/o/simple.jsp?pkgname=com.netease.cloudmusic&android_scheme=orpheus://eyJjbWQiOiJsaXN0ZW50b2dldGhlciIsInJlZmVyIjoiaW5ib3hfaW52aXRlIiwicm9vbUlkIjoiZmJhODBmMzhiOWE2N2MxMzM5NzY1NmM1NWM5MzAwNTZfMTc4Njg4MDUwNDQyOSIsImludml0ZXJJZCI6IjE3NzM1ODAzMTEifQ==
 export { getRealLink, getShareObj, shareObjToOrignal, shareObjToOrpheus, compressShareObj, decompressShareObj, };
-console.log(getShareObj("https://163cn.tv/bdfRehdK"));

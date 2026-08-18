@@ -105,7 +105,14 @@ type shareObj = {
     id2: number | null,
 }
 
+function extractUrls(text: string, unique = false) {
+    const urlRegex = new RegExp("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]","g");
+    const matches = text.match(urlRegex) || [];
+    return unique ? [...new Set(matches)] : matches;
+}
+
 async function getShareObj(http_link: string): Promise<shareObj> {
+    http_link = extractUrls(http_link)[0];
     http_link = await getRealLink(http_link);
     let ref = getRelativeRef(new URL(http_link));
     let { path, path_id } = getPathFromRef(ref);
@@ -301,6 +308,3 @@ export {
     compressShareObj,
     decompressShareObj,
 };
-
-
-console.log(getShareObj("https://163cn.tv/bdfRehdK"))
