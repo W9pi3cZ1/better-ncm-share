@@ -16,10 +16,7 @@
       shareObjToOrpheus,
       compressShareObj,
       decompressShareObj,
-    } from "./script.js";
-    import {
-      getUserCard
-    } from "./user-card.js";
+    } from "../script.js";
     let share_obj;
     if (location.hash !== '' && location.hash !== '#') {
       share_obj = decompressShareObj(location.hash.slice(1));

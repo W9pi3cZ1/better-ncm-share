@@ -93,7 +93,10 @@
         <textarea name="link" id="link"></textarea>
         <input type="button" value="ok!" id="btn">
         <div>Link: <a id="share-link"></a></div>
-        <button id="copy-it">复制</button>
+        <div>
+            <button id="copy-it-direct">复制direct链</button>
+            <button id="copy-it">复制</button>
+        </div>
     </div>
     <script type="module">
         import {
@@ -111,21 +114,30 @@
         let link_elem = document.querySelector("#link");
         let share_link_elem = document.querySelector("#share-link");
         let copy_it = document.querySelector("#copy-it");
+        let copy_it_direct = document.querySelector("#copy-it-direct");
         let content = document.querySelector("#content");
-        let share_obj;
+        let share_obj, sl_pf, sl_ha;
+        sl_pf = location.protocol + "//"
+                + location.host
+                + location.pathname;
+        function gen_sl(obj){
+            sl_ha = "#" + compressShareObj(obj);
+        }
         btn.addEventListener("click", async () => {
             share_obj = await getShareObj(link_elem.value)
             console.log(share_obj);
-            let sl_pf =
-                location.protocol + "//"
-                + location.host
-                + location.pathname;
-            let sl_ha = "#" + compressShareObj(share_obj);
+            gen_sl(share_obj);
             share_link_elem.href = sl_pf + sl_ha;
             share_link_elem.innerHTML = sl_pf + sl_ha;
         })
         copy_it.addEventListener("click", async () => {
-            await navigator.clipboard.writeText(share_link_elem.href);
+            gen_sl(share_obj);
+            await navigator.clipboard.writeText(sl_pf + sl_ha);
+        });
+        copy_it_direct.addEventListener("click", async () => {
+            gen_sl(share_obj);
+            await navigator.clipboard.writeText(location.protocol + "//"
+                + location.host + "/d" + sl_ha);
         });
 
         if (location.hash !== '' && location.hash !== '#') {
