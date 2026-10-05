@@ -102,11 +102,11 @@
         import {
             getRealLink,
             getShareObj,
-            shareObjToOrignal,
+            shareObjToOriginal,
             shareObjToOrpheus,
             compressShareObj,
             decompressShareObj,
-        } from "./script.js";
+        } from "./orpheus.js";
         import {
             getUserCard
         } from "./user-card.js";
@@ -121,7 +121,7 @@
                 + location.host
                 + location.pathname;
         function gen_sl(obj){
-            sl_ha = "#" + compressShareObj(obj);
+            sl_ha = compressShareObj(obj);
         }
         btn.addEventListener("click", async () => {
             share_obj = await getShareObj(link_elem.value)
@@ -141,11 +141,11 @@
         });
 
         if (location.hash !== '' && location.hash !== '#') {
-            share_obj = decompressShareObj(location.hash.slice(1));
+            share_obj = decompressShareObj(location.hash);
             console.log(share_obj);
             let orp = shareObjToOrpheus(share_obj);
             let yyb = `http://a.app.qq.com/o/simple.jsp?pkgname=com.netease.cloudmusic&android_scheme=${encodeURIComponent(orp)}`;
-            let org = shareObjToOrignal(share_obj);
+            let org = shareObjToOriginal(share_obj);
             let ua = navigator.userAgent;
             // let auto;
             // if (location.search.includes("orp=1")) {

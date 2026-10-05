@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Better NCM Share Direct</title>
+</head>
+
+<body>
+  <div id="fallback" style="display:none;padding:16px;font-family:sans-serif;">
+    <p>自动复制失败，请手动复制以下链接：</p>
+    <textarea id="link" readonly style="width:100%;height:80px;box-sizing:border-box;"></textarea>
+    <p><button id="open-btn">立即打开链接</button></p>
+  </div>
+
+  <script type="module">
+    import {
+      getRealLink,
+      getShareObj,
+      shareObjToOriginal,
+      shareObjToOrpheus,
+      compressShareObj,
+      decompressShareObj,
+    } from "../orpheus.js";
+
+    // 复制文本：优先 Clipboard API，失败则降级 execCommand
+    async function copyText(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (e) {
+        console.warn('Clipboard API 复制失败，尝试降级方案', e);
+      }
+
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '-1000px';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) {
+        console.warn('降级复制也失败了', e);
+        return false;
+      }
+    }
+
+    (async () => {
+      if (location.hash === '' || location.hash === '#') return;
+
+      try {
+        const share_obj = decompressShareObj(location.hash);
+        console.log(share_obj);
+        const org = shareObjToOriginal(share_obj);
+
+        const copied = await copyText(org);
+
+        if (copied) {
+          // 复制成功：直接跳转
+          location.replace(org);
+        } else {
+          // 复制失败：不跳转，展示链接供手动复制
+          const linkEl = document.getElementById('link');
+          linkEl.value = org;
+          document.getElementById('fallback').style.display = 'block';
+          document.getElementById('open-btn').addEventListener('click', () => {
+            location.replace(org);
+          });
+        }
+      } catch (e) {
+        console.error('解析分享链接失败', e);
+      }
+    })();
+  </script>
+</body>
+
+</html>
